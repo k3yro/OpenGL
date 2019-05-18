@@ -28,7 +28,7 @@ int main(int argc, char** argv)
 	//Fehlerkorrektur
 
 	//1 Thread, 1 Context (mehrere moeglich)
-	SDL_GLContext glContext = SDL_GL_CreateContext(window);
+	SDL_GLContext glContext = SDL_GL_CreateContext(window); // Speichert Render Status
 
 	//Fehlerkorrektur
 
@@ -36,9 +36,19 @@ int main(int argc, char** argv)
 
 	while (!close) // GameLoop
 	{
-		//Zeichnen:
-		glClearColor(1.0f, 0.0f, 0.0f, 1.0f); // Alten Buffer loeschen
+		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		//Zeichnen:
+		glBegin(GL_TRIANGLES);
+
+		//Veraltete Variante um Dreieck zu zeichnen (2D):
+		glVertex2f(-0.5f/*x*/, -0.5f/*y*/);	// von -1 bis 1
+		glVertex2f(0.0f, 0.5f);
+		glVertex2f(0.5f, -0.5f);
+
+		glEnd();
+
 		SDL_GL_SwapWindow(window); //2 Buffer (Monitorausgabe|Bildberechnung) -> Doppelpufferung
 
 		SDL_Event event;
