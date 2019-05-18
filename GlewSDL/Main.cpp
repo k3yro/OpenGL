@@ -32,22 +32,24 @@ int main(int argc, char** argv)
 
 	//Fehlerkorrektur
 
+	//Laden aller OpenGL Erweitungen
+	GLenum err = glewInit(); //benoetigt SDL_GLContext (oben)
+	if (GLEW_OK != err)
+	{
+		std::cout << "Glew Error: " << glewGetErrorString(err) << std::endl;
+		system("pause");
+		return -1;
+	}
+	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+
 	bool close = false;
 
 	while (!close) // GameLoop
 	{
-		glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// Loeschfarbe angeben
+		glClear(GL_COLOR_BUFFER_BIT);			// Loeschen mit Loeschfarbe
 
-		//Zeichnen:
-		glBegin(GL_TRIANGLES);
 
-		//Veraltete Variante um Dreieck zu zeichnen (2D):
-		glVertex2f(-0.5f/*x*/, -0.5f/*y*/);	// von -1 bis 1
-		glVertex2f(0.0f, 0.5f);
-		glVertex2f(0.5f, -0.5f);
-
-		glEnd();
 
 		SDL_GL_SwapWindow(window); //2 Buffer (Monitorausgabe|Bildberechnung) -> Doppelpufferung
 
