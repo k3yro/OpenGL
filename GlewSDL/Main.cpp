@@ -11,6 +11,7 @@
 
 #include "vertex_buffer.h"
 #include "defines.h"
+#include "shader.h"
 
 // OpenGL Befehle nachschlagen: http://docs.gl
 //TODO: Debug -> mit Konsole | Release -> nur Fenster
@@ -56,6 +57,9 @@ int main(int argc, char** argv)
 
 	VertexBuffer vertexBuffer(verticies, countVerticies);
 	vertexBuffer.Unbind();
+
+	Shader shader("basic.vs.txt", "basic.fs.txt");
+	shader.bind();
 
 	bool close = false;
 	while (!close) // GameLoop
