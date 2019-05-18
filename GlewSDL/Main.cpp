@@ -1,7 +1,7 @@
 #include <iostream>
 #define GLEW_STATIC			//Glew DLLs statisch linken
 #include <GL/glew.h>
-#define SDL_MAIN_HANDLED	//Eigene main Funktion verwenden
+#define SDL_MAIN_HANDLED	//Eigene Main Funktion verwenden
 #include <SDL.h>
 
 // Linker - Eingabe - Zusaetzliche Abhaengigkeiten
@@ -18,6 +18,7 @@ struct Vertex // Punkt im Raum
 	//Reihenfolge x,y,z nie aendern
 };
 
+// OpenGL Befehle nachschlagen: http://docs.gl
 //TODO: Debug -> mit Konsole | Release -> nur Fenster
 int main(int argc, char** argv) 
 {
@@ -34,12 +35,12 @@ int main(int argc, char** argv)
 
 	window = SDL_CreateWindow("First Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL/*Typ - z.B. Vulcan usw.*/);
 	
-	//Fehlerkorrektur
+	//Todo: Fehlerkorrektur window
 
 	//1 Thread, 1 Context (mehrere moeglich)
 	SDL_GLContext glContext = SDL_GL_CreateContext(window); // Speichert Render Status
 
-	//Fehlerkorrektur
+	//Todo: Fehlerkorrektur glContext
 
 	//Laden aller OpenGL Erweitungen
 	GLenum err = glewInit(); //benoetigt SDL_GLContext (oben)
@@ -65,10 +66,10 @@ int main(int argc, char** argv)
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer/*ID*/); // Buffer als Array betrachten
 	//Buffer ist jetzt gebunden
 
-	//Daten an Buffer senden (siehe http://docs.gl)
+	//Daten an Buffer senden 
 	glBufferData(GL_ARRAY_BUFFER/*Typ*/, countVerticies * sizeof(Vertex)/*Groesse*/, verticies, GL_STATIC_DRAW);
 
-	//Daten erlaeutern:
+	//Daten erlaeutern (bleibt wie glBindBuffer gesetzt bis man es aendert):
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(
 		0,							// Index
