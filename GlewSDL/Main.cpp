@@ -9,6 +9,7 @@
 #pragma comment(lib, "glew32s.lib")
 #pragma comment(lib, "opengl32.lib")
 
+//TODO: Debug -> mit Konsole | Release -> nur Fenster
 int main(int argc, char** argv) 
 {
 	SDL_Window* window;
