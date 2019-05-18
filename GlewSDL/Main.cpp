@@ -9,6 +9,15 @@
 #pragma comment(lib, "glew32s.lib")
 #pragma comment(lib, "opengl32.lib")
 
+struct Vertex // Punkt im Raum
+{
+	//Position:
+	float x;
+	float y;
+	float z;
+	//Reihenfolge x,y,z nie aendern
+};
+
 //TODO: Debug -> mit Konsole | Release -> nur Fenster
 int main(int argc, char** argv) 
 {
@@ -42,14 +51,50 @@ int main(int argc, char** argv)
 	}
 	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
-	bool close = false;
+	//Daten fuer Dreieck:
+	Vertex verticies[] = {
+		Vertex{-0.5f, -0.5f, 0.0f},
+		Vertex{0.0f, 0.5f, 0.0f},
+		Vertex{0.5f, -0.5f, 0.0f}
+	};
+	uint32_t countVerticies = 3; // Anzahl Dreiecke in verticies Array
 
+	//Buffer, um das Dreieck in Grafikkartenspeicher zu legen
+	GLuint vertexBuffer; // Index/ID (Zeigerersatz)
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer/*ID*/); // Buffer als Array betrachten
+	//Buffer ist jetzt gebunden
+
+	//Daten an Buffer senden (siehe http://docs.gl)
+	glBufferData(GL_ARRAY_BUFFER/*Typ*/, countVerticies * sizeof(Vertex)/*Groesse*/, verticies, GL_STATIC_DRAW);
+
+	//Daten erlaeutern:
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(
+		0,							// Index
+		3,							// Anzahl (x,y,z)
+		GL_FLOAT,					// Typ
+		GL_FALSE,					// Normalisierung z.B. 255 in 1.0f umwandeln
+		sizeof(Vertex),				// Groesse
+		0//offsetof(struct Vertex,x)// Wo beginnt erste Koordinate
+	);
+
+	bool close = false;
 	while (!close) // GameLoop
 	{
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// Loeschfarbe angeben
 		glClear(GL_COLOR_BUFFER_BIT);			// Loeschen mit Loeschfarbe
 
+		/* Veraltet:
+		glBegin(GL_TRIANGLES);
+		glVertex2f(-0.5f, -0.5f);
+		glVertex2f(0.0f, 0.5f);
+		glVertex2f(0.5f, -0.5f);
+		glEnd();
+		*/
 
+		//Gebundener Buffer (glBindBuffer) wird gezeichnet
+		glDrawArrays(GL_TRIANGLES, 0/*Kompletten Buffer zeichnen*/, countVerticies);
 
 		SDL_GL_SwapWindow(window); //2 Buffer (Monitorausgabe|Bildberechnung) -> Doppelpufferung
 
