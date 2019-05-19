@@ -55,12 +55,14 @@ int main(int argc, char** argv)
 	Vertex verticies[] = {
 		Vertex{-0.5f, -0.5f, 0.0f,
 				1.0f, 0.0f, 0.0f, 1.0f},
-		Vertex{0.0f, 0.5f, 0.0f,
+		Vertex{-0.5f, 0.5f, 0.0f,
 				0.0f, 1.0f, 0.0f, 1.0f},
 		Vertex{0.5f, -0.5f, 0.0f,
-				0.0f, 0.0f, 1.0f, 1.0f}
+				0.0f, 0.0f, 1.0f, 1.0f},
+		Vertex{0.5f, 0.5f, 0.0f,
+				1.0f, 0.0f, 0.0f, 1.0f}
 	};
-	uint32_t countVerticies = 3; // Anzahl Dreiecke in verticies Array
+	uint32_t countVerticies = 4; // Anzahl Dreiecke in verticies Array
 
 	VertexBuffer vertexBuffer(verticies, countVerticies);
 	vertexBuffer.Unbind();
@@ -85,7 +87,7 @@ int main(int argc, char** argv)
 
 		
 		vertexBuffer.Bind();
-		glDrawArrays(GL_TRIANGLES, 0, countVerticies);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, countVerticies);
 		vertexBuffer.Unbind();
 
 		SDL_GL_SwapWindow(window); //2 Buffer (Monitorausgabe|Bildberechnung) -> Doppelpufferung
@@ -104,7 +106,7 @@ int main(int argc, char** argv)
 		uint64_t counterElapsed = endCounter - lastCounter;
 		delta = ((float)counterElapsed) / (float)perfCounterFrequency;
 		uint32_t FPS = (uint32_t)((float)perfCounterFrequency / (float)counterElapsed);
-		std::cout << FPS << std::endl;
+		//std::cout << FPS << std::endl;
 		lastCounter = endCounter;
 	}
 	return 0;
