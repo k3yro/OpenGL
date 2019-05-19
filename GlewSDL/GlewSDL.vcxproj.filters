@@ -35,6 +35,9 @@
     <ClInclude Include="shader.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="index_buffer.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="basic.fs.txt">

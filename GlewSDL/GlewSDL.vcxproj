@@ -143,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="defines.h" />
+    <ClInclude Include="index_buffer.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="vertex_buffer.h" />
   </ItemGroup>
