@@ -49,9 +49,12 @@ int main(int argc, char** argv)
 
 	//Daten fuer Dreieck:
 	Vertex verticies[] = {
-		Vertex{-0.5f, -0.5f, 0.0f},
-		Vertex{0.0f, 0.5f, 0.0f},
-		Vertex{0.5f, -0.5f, 0.0f}
+		Vertex{-0.5f, -0.5f, 0.0f,
+				1.0f, 0.0f, 0.0f, 1.0f},
+		Vertex{0.0f, 0.5f, 0.0f,
+				0.0f, 1.0f, 0.0f, 1.0f},
+		Vertex{0.5f, -0.5f, 0.0f,
+				0.0f, 0.0f, 1.0f, 1.0f}
 	};
 	uint32_t countVerticies = 3; // Anzahl Dreiecke in verticies Array
 

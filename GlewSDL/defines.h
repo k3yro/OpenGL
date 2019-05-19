@@ -1,10 +1,13 @@
 #pragma once
 
-struct Vertex // Punkt im Raum
+struct Vertex
 {
-	//Position:
 	float x;
 	float y;
 	float z;
-	//Reihenfolge x,y,z nie aendern
+
+	float r;
+	float g;
+	float b;
+	float a;
 };

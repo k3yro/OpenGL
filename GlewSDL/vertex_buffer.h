@@ -15,7 +15,9 @@ struct VertexBuffer
 		glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vertex), data, GL_STATIC_DRAW);
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0/*Vorsich: x Koord an erster Stelle!*/);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(struct Vertex, x));
+		glEnableVertexAttribArray(1/*Index*/);
+		glVertexAttribPointer(1/*Index*/, 4/*rot bis alpha*/, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) offsetof(struct Vertex, r)/*offset*/);
 
 		glBindVertexArray(0);
 	}
