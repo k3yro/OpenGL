@@ -7,6 +7,9 @@
 #include <sstream>
 #include <cmath>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 // Linker - Eingabe - Zusaetzliche Abhaengigkeiten
 #pragma comment(lib, "SDL2.lib")
 #pragma comment(lib, "glew32s.lib")
@@ -53,7 +56,7 @@ void _GLGetError(const char* file, int line, const char* call) {
 
 // OpenGL Befehle nachschlagen: http://docs.gl
 //TODO: Debug -> mit Konsole | Release -> nur Fenster
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
 	SDL_Window* window;
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -76,7 +79,7 @@ int main(int argc, char** argv)
 	uint32_t flags = SDL_WINDOW_OPENGL;
 
 	window = SDL_CreateWindow("First Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, flags);
-	
+
 	//Todo: Fehlerkorrektur window
 
 	//1 Thread, 1 Context (mehrere moeglich)
@@ -125,6 +128,30 @@ int main(int argc, char** argv)
 	VertexBuffer vertexBuffer(verticies, countVerticies);
 	vertexBuffer.Unbind();
 
+	//Textur
+	int32_t textureWidth = 0;
+	int32_t terxtureHeight = 0;
+	int32_t bitsPerPixel = 0;
+	stbi_set_flip_vertically_on_load(true); //sonst Textur auf den Kopf
+	auto texturBuffer = stbi_load("Texturen/Textur.png", &textureWidth, &terxtureHeight, &bitsPerPixel, 4/*Kanaele*/);
+
+	GLuint textureId;
+	GLCALL(glGenTextures(1, &textureId));
+	GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
+
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER/*z.b. bei Kamerabewegung*/, GL_LINEAR)); // GL_MIPMAP = nutze verschieden Aufloesungen
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER/*nah dran*/, GL_MIPMAP/*verschwommen/verwaschen*/)); // GL_NEAREST = Minecraft / PS2
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE/*Am Rand der Textur abschneiden (statt z.B. kacheln)*/));
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+
+	GLCALL(glTexImage2D(GL_TEXTURE_2D, 0/*level(bitmaps)*/, GL_RGBA8/*Format*/, textureWidth, terxtureHeight, 0/*boarder?*/, GL_RGBA/*nochmal Format, aber ohne 8bit!?*/, GL_UNSIGNED_BYTE/*Typ Farbkanaele*/, texturBuffer));
+	GLCALL(glBindTexture(GL_TEXTURE_2D, 0));
+
+	if (texturBuffer) {
+		stbi_image_free(texturBuffer);
+	}
+
+
 	Shader shader("basic.vs.txt", "basic.fs.txt");
 	shader.bind();
 
@@ -133,7 +160,7 @@ int main(int argc, char** argv)
 	uint64_t lastCounter = SDL_GetPerformanceCounter();
 	float delta = 0.0f;
 
-	// Farbverlauf: Shader muss geladen sein
+	// Uniform - Shader muss geladen sein
 	int colorUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_color"));
 	if (!colorUniformLocation != -1) {
 		GLCALL(glUniform4f(colorUniformLocation, 1.0f, 0.0f, 1.0f, 1.0f));
@@ -155,7 +182,7 @@ int main(int argc, char** argv)
 		if (!colorUniformLocation != -1) {
 			GLCALL(glUniform4f(colorUniformLocation, sinf(time) * sinf(time), 0.0f, 1.0f, 1.0f));
 		}
-		
+
 		vertexBuffer.Bind();
 		indexBuffer.bind();
 		GLCALL(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
@@ -181,5 +208,6 @@ int main(int argc, char** argv)
 		//std::cout << FPS << std::endl;
 		lastCounter = endCounter;
 	}
+	GLCALL(glDeleteTextures(1, &textureId));
 	return 0;
 }

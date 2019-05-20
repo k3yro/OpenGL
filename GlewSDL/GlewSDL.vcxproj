@@ -145,11 +145,15 @@
     <ClInclude Include="defines.h" />
     <ClInclude Include="index_buffer.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="vertex_buffer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="basic.fs.txt" />
     <None Include="basic.vs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Texturen\Textur.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
