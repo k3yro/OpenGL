@@ -5,6 +5,7 @@
 #include <SDL.h>
 #include <Windows.h>
 #include <sstream>
+#include <cmath>
 
 // Linker - Eingabe - Zusaetzliche Abhaengigkeiten
 #pragma comment(lib, "SDL2.lib")
@@ -132,16 +133,28 @@ int main(int argc, char** argv)
 	uint64_t lastCounter = SDL_GetPerformanceCounter();
 	float delta = 0.0f;
 
+	// Farbverlauf: Shader muss geladen sein
+	int colorUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_color"));
+	if (!colorUniformLocation != -1) {
+		GLCALL(glUniform4f(colorUniformLocation, 1.0f, 0.0f, 1.0f, 1.0f));
+	}
+
 	//Wireframe Modus
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Normal
 
+	float time = 0.0f;
 	bool close = false;
 	while (!close) // GameLoop
 	{
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// Loeschfarbe angeben
 		glClear(GL_COLOR_BUFFER_BIT);			// Loeschen mit Loeschfarbe
 
+		time += delta;
+
+		if (!colorUniformLocation != -1) {
+			GLCALL(glUniform4f(colorUniformLocation, sinf(time) * sinf(time), 0.0f, 1.0f, 1.0f));
+		}
 		
 		vertexBuffer.Bind();
 		indexBuffer.bind();
