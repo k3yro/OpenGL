@@ -106,12 +106,16 @@ int main(int argc, char** argv)
 	//Daten fuer Dreieck:
 	Vertex verticies[] = {
 		Vertex{-0.5f, -0.5f, 0.0f,
+				0.0f, 0.0f,
 				1.0f, 0.0f, 0.0f, 1.0f},
 		Vertex{-0.5f, 0.5f, 0.0f,
+				0.0f, 1.0f,
 				0.0f, 1.0f, 0.0f, 1.0f},
 		Vertex{0.5f, -0.5f, 0.0f,
+				1.0f, 0.0f,
 				0.0f, 0.0f, 1.0f, 1.0f},
 		Vertex{0.5f, 0.5f, 0.0f,
+				1.0f, 1.0f,
 				1.0f, 0.0f, 0.0f, 1.0f}
 	};
 	uint32_t countVerticies = 4; // Anzahl Dreiecke in verticies Array
@@ -140,7 +144,7 @@ int main(int argc, char** argv)
 	GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
 
 	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER/*z.b. bei Kamerabewegung*/, GL_LINEAR)); // GL_MIPMAP = nutze verschieden Aufloesungen
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER/*nah dran*/, GL_MIPMAP/*verschwommen/verwaschen*/)); // GL_NEAREST = Minecraft / PS2
+	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER/*nah dran*/, GL_LINEAR/*verschwommen/verwaschen*/)); // GL_NEAREST = Minecraft / PS2
 	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE/*Am Rand der Textur abschneiden (statt z.B. kacheln)*/));
 	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
@@ -163,7 +167,13 @@ int main(int argc, char** argv)
 	// Uniform - Shader muss geladen sein
 	int colorUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_color"));
 	if (!colorUniformLocation != -1) {
-		GLCALL(glUniform4f(colorUniformLocation, 1.0f, 0.0f, 1.0f, 1.0f));
+		GLCALL(glUniform4f(colorUniformLocation, 0.0f, 0.0f, 1.0f, 1.0f));
+	}
+
+	//Textur:
+	int textureUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_texture"));
+	if (!textureUniformLocation != -1) {
+		GLCALL(glUniform1i(textureUniformLocation, 0));
 	}
 
 	//Wireframe Modus
@@ -180,11 +190,13 @@ int main(int argc, char** argv)
 		time += delta;
 
 		if (!colorUniformLocation != -1) {
-			GLCALL(glUniform4f(colorUniformLocation, sinf(time) * sinf(time), 0.0f, 1.0f, 1.0f));
+			GLCALL(glUniform4f(colorUniformLocation, 1.0f, 1.0f, sinf(time)* sinf(time), 1.0f));
 		}
 
 		vertexBuffer.Bind();
 		indexBuffer.bind();
+		GLCALL(glActiveTexture(GL_TEXTURE0));
+		GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
 		GLCALL(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
 		indexBuffer.unbind();
 		vertexBuffer.Unbind();
