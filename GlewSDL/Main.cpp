@@ -11,6 +11,8 @@
 #include <Windows.h>
 #include <sstream>
 #include <cmath>
+#include <vector>
+#include <fstream>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
@@ -115,32 +117,46 @@ int main(int argc, char** argv)
 #endif
 
 	// Daten fuer Dreieck:
-	Vertex verticies[] = {
-		Vertex{-0.5f, -0.5f, 0.0f,
-				0.0f, 0.0f,
-				1.0f, 0.0f, 0.0f, 1.0f},
-		Vertex{-0.5f, 0.5f, 0.0f,
-				0.0f, 1.0f,
-				0.0f, 1.0f, 0.0f, 1.0f},
-		Vertex{0.5f, -0.5f, 0.0f,
-				1.0f, 0.0f,
-				0.0f, 0.0f, 1.0f, 1.0f},
-		Vertex{0.5f, 0.5f, 0.0f,
-				1.0f, 1.0f,
-				1.0f, 0.0f, 0.0f, 1.0f}
-	};
-	uint32_t countVerticies = 4; // Anzahl Dreiecke in verticies Array
+	std::vector<Vertex> vertices;
+	uint64_t countVerticies = 4; // Anzahl Dreiecke in verticies Array
 
 	// Index fuer komplexere Formen
-	uint32_t indices[] = {
-		0, 1, 2,
-		1, 2, 3
-	};
-	uint32_t numIndices = 6;
+	std::vector<uint32_t> indices;
+	uint64_t numIndices = 0;
 
-	IndexBuffer indexBuffer(indices, numIndices, sizeof(indices[0]));
+	std::ifstream input = std::ifstream("Models/cube.bmf", std::ios::in | std::ios::binary);
+	if (!input.is_open())
+	{
+		std::cout << "Fehler beim Einlesen des Models" << std::endl;
+		return 1;
+	}
+	input.read((char*)&countVerticies, sizeof(uint64_t));
+	input.read((char*)&numIndices, sizeof(uint64_t));
+	//Todo: Optimierung
 
-	VertexBuffer vertexBuffer(verticies, countVerticies);
+	for (uint64_t i = 0; i < countVerticies; i++)
+	{
+		Vertex vertex;
+		input.read((char*)&vertex.x, sizeof(float));
+		input.read((char*)&vertex.y, sizeof(float));
+		input.read((char*)&vertex.z, sizeof(float));
+		vertex.r = 1.0f;
+		vertex.g = 1.0f;
+		vertex.b = 1.0f;
+		vertex.a = 1.0f;
+		vertices.push_back(vertex);
+	}
+
+	for (uint64_t i = 0; i < numIndices; i++)
+	{
+		uint32_t index;
+		input.read((char*)&index, sizeof(uint32_t));
+		indices.push_back(index);
+	}
+
+	IndexBuffer indexBuffer(indices.data(), numIndices, sizeof(indices[0]));
+
+	VertexBuffer vertexBuffer(vertices.data(), countVerticies);
 	vertexBuffer.Unbind();
 
 	// Textur

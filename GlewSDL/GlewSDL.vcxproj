@@ -158,6 +158,8 @@
   <ItemGroup>
     <None Include="basic.fs.txt" />
     <None Include="basic.vs.txt" />
+    <None Include="Models\cube.bmf" />
+    <None Include="Models\hubschrauber.bmf" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Texturen\Textur.png" />
