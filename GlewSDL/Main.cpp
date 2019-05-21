@@ -187,7 +187,7 @@ int main(int argc, char** argv)
 	glm::mat4 model = glm::mat4(1.0f); // Einheitsmatrix (nichts passiert)
 	model = glm::scale(model, glm::vec3(1.0f/*x*/, 1.0f/*y*/, 1.0f/*z*/)); // Skalieren
 
-	bool ortho = false; // Ingame Perspektive wechseln
+	//bool ortho = false; // Ingame Perspektive wechseln
 
 	//// Orthogonale Projektion
 	//glm::mat4 projectionOrtho = glm::ortho(-2.26f, 2.26f,/*4zu3*/ -1.7f, 1.7f, -10.0f, 100.0f); // Auflösungsabhaengig
@@ -259,17 +259,7 @@ int main(int argc, char** argv)
 				case SDLK_p:
 					if (event.key.keysym.mod & KMOD_LCTRL)
 					{
-						ortho = !ortho;
-						if (ortho)
-						{
-							//projection = projectionOrtho;
-							std::cout << "Kamerawechsel zu Orthogonal!" << std::endl;
-						}
-						else
-						{
-							//projection = projectionPersp;
-							std::cout << "Kamerawechsel zu Perspektive!" << std::endl;
-						}
+						camera.switchProjection();
 					}
 					break;
 				}
