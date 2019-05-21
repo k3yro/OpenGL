@@ -24,6 +24,7 @@
 #include "index_buffer.h"
 #include "defines.h"
 #include "shader.h"
+#include "Kamera.hpp"
 
 // Neue OpenGl Debug Variante:
 std::string lastErrorMessage = "";
@@ -188,26 +189,43 @@ int main(int argc, char** argv)
 
 	bool ortho = false; // Ingame Perspektive wechseln
 
-	// Orthogonale Projektion
-	glm::mat4 projectionOrtho = glm::ortho(-2.26f, 2.26f,/*4zu3*/ -1.7f, 1.7f, -10.0f, 100.0f); // Auflösungsabhaengig
+	//// Orthogonale Projektion
+	//glm::mat4 projectionOrtho = glm::ortho(-2.26f, 2.26f,/*4zu3*/ -1.7f, 1.7f, -10.0f, 100.0f); // Auflösungsabhaengig
 
-	// Perspektivische Projektion
-	glm::mat4 projectionPersp = glm::perspective(glm::radians(45.0f)/*Aufnahme-Winkel*/, 4.0f / 3.0f/*hier 4zu3, sonst Aufloesungsabhaengig*/, 0.1f/*Near Sichtweite*/, 100.0f/*Far Sichtweite (richtiges Spiel 1000 oder mehr)*/);
+	//// Perspektivische Projektion
+	//glm::mat4 projectionPersp = glm::perspective(glm::radians(45.0f)/*Aufnahme-Winkel*/, 4.0f / 3.0f/*hier 4zu3, sonst Aufloesungsabhaengig*/, 0.1f/*Near Sichtweite*/, 100.0f/*Far Sichtweite (richtiges Spiel 1000 oder mehr)*/);
 
-	// Initial Perspektive
-	glm::mat4 projection = projectionPersp;
+	//// Initial Perspektive
+	//glm::mat4 projection = projectionPersp;
 
-	// Kamera verschieben
-	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f/*n Einheiten entfernt*/));
+	//TODO: Echte Aufloesung mit SDL abfragen
+	Kamera camera(90.0f/*Grad*/, 800.0f, 600.0f);
+
+	// Kamera bewegen:
+	camera.translate(glm::vec3(0.0f, 0.0f, 5.0f));
+
+	// ViewProjektionMatrix updaten
+	camera.update();
+
+
+
+	//// Kamera verschieben
+	//glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f/*n Einheiten entfernt*/));
 
 	// Projektion berechnen
-	glm::mat4 modelViewProj = projection * view * model;
+	glm::mat4 modelViewProj = camera.getViewProj() * model;
 
 	int modelMatrixLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_modelViewProj"));
 
 	// Wireframe Modus
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Normal
+
+	// WASD
+	bool buttonW = false;
+	bool buttonA = false;
+	bool buttonS = false;
+	bool buttonD = false;
 
 	float time = 0.0f;
 	bool close = false;
@@ -222,22 +240,56 @@ int main(int argc, char** argv)
 			{
 				close = true;
 			}
-			// Perspektive wechseln
 			else if (event.type == SDL_KEYDOWN)
 			{
-				if (event.key.keysym.sym == SDLK_p/*Taste P*/ && event.key.keysym.mod & KMOD_LCTRL/*sowie gedrueckte linke Steuerungstaste*/)
+				switch (event.key.keysym.sym)
 				{
-					ortho = !ortho;
-					if (ortho)
+				case SDLK_w:
+					buttonW = true;
+					break;
+				case SDLK_a:
+					buttonA = true;
+					break;
+				case SDLK_s:
+					buttonS = true;
+					break;
+				case SDLK_d:
+					buttonD = true;
+					break;
+				case SDLK_p:
+					if (event.key.keysym.mod & KMOD_LCTRL)
 					{
-						projection = projectionOrtho;
-						std::cout << "Kamerawechsel zu Orthogonal!" << std::endl;
+						ortho = !ortho;
+						if (ortho)
+						{
+							//projection = projectionOrtho;
+							std::cout << "Kamerawechsel zu Orthogonal!" << std::endl;
+						}
+						else
+						{
+							//projection = projectionPersp;
+							std::cout << "Kamerawechsel zu Perspektive!" << std::endl;
+						}
 					}
-					else
-					{
-						projection = projectionPersp;
-						std::cout << "Kamerawechsel zu Perspektive!" << std::endl;
-					}
+					break;
+				}
+			}
+			else if (event.type == SDL_KEYUP)
+			{
+				switch (event.key.keysym.sym)
+				{
+				case SDLK_w:
+					buttonW = false;
+					break;
+				case SDLK_a:
+					buttonA = false;
+					break;
+				case SDLK_s:
+					buttonS = false;
+					break;
+				case SDLK_d:
+					buttonD = false;
+					break;
 				}
 			}
 		}
@@ -246,9 +298,31 @@ int main(int argc, char** argv)
 		glClear(GL_COLOR_BUFFER_BIT);			// Loeschen mit Loeschfarbe
 		time += delta; // delta ist die Zeit, die seit dem letzten Frame vergangen ist!
 
+		// Kamera bewegen:
+		if (buttonW)
+		{
+			camera.translate(glm::vec3(0.0f, 0.0f, -2.0f * delta)); // Zwei Einheiten pro Sekunde nach vorne
+		}
+		if (buttonA)
+		{
+			camera.translate(glm::vec3(-1.0f * delta, 0.0f, 0.0f)); // Zwei Einheiten pro Sekunde nach vorne
+		}
+		if (buttonS)
+		{
+			camera.translate(glm::vec3(0.0f, 0.0f, 2.0f * delta)); // Zwei Einheiten pro Sekunde nach vorne
+		}
+		if (buttonD)
+		{
+			camera.translate(glm::vec3(1.0f * delta, 0.0f, 0.0f)); // Zwei Einheiten pro Sekunde nach vorne
+		}
+
+
+		camera.update();
+		
+
 		// Echte Rotation:
 		model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
-		modelViewProj = projection * view * model;
+		modelViewProj = camera.getViewProj() * model;
 
 		// Fake Rotation (mit scale):
 		//model = glm::mat4(1.0f);
