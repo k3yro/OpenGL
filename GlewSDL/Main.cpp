@@ -73,6 +73,11 @@ int main(int argc, char** argv)
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8/*bit*/);
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32/*bit*/);	// Optional (minimale Buffergroesse)
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1/*An*/);	// Doppelpufferung einschalten
+	
+	// Vsync: 0 = Aus (Screen Tearing Gefahr), 
+	// 1 = Ein (Grafikkarte wartet bis Frame auf Monitor fertig gezeichnet ist), 
+	// -1 = AdaptivSync (Monitor(g-sync/freesync faehig) wartet auf Grafikkarte)
+	SDL_GL_SetSwapInterval(1); // Hardwarevoraussetzungen sind mit SDL-Befehlen abfragbar
 
 #ifdef _DEBUG
 	// Spezieller Debug Mode (Verlangsamung)
@@ -179,13 +184,18 @@ int main(int argc, char** argv)
 
 	// Pinguin drehen:
 	glm::mat4 model = glm::mat4(1.0f); // Einheitsmatrix (nichts passiert)
-	model = glm::scale(model, glm::vec3(0.8f/*x*/, 0.8f/*y*/, 1.0f/*z*/)); // Skalieren
+	model = glm::scale(model, glm::vec3(1.0f/*x*/, 1.0f/*y*/, 1.0f/*z*/)); // Skalieren
+
+	bool ortho = false; // Ingame Perspektive wechseln
 
 	// Orthogonale Projektion
-	glm::mat4 projection = glm::ortho(-4.0f, 4.0f,/*4zu3*/ -3.0f, 3.0f, -10.0f, 100.0f); // Auflösungsabhaengig
+	glm::mat4 projectionOrtho = glm::ortho(-2.26f, 2.26f,/*4zu3*/ -1.7f, 1.7f, -10.0f, 100.0f); // Auflösungsabhaengig
 
 	// Perspektivische Projektion
-	projection = glm::perspective(glm::radians(45.0f)/*Aufnahme-Winkel*/, 4.0f / 3.0f/*hier 4zu3, sonst Aufloesungsabhaengig*/, 0.1f/*Near Sichtweite*/, 100.0f/*Far Sichtweite (richtiges Spiel 1000 oder mehr)*/);
+	glm::mat4 projectionPersp = glm::perspective(glm::radians(45.0f)/*Aufnahme-Winkel*/, 4.0f / 3.0f/*hier 4zu3, sonst Aufloesungsabhaengig*/, 0.1f/*Near Sichtweite*/, 100.0f/*Far Sichtweite (richtiges Spiel 1000 oder mehr)*/);
+
+	// Initial Perspektive
+	glm::mat4 projection = projectionPersp;
 
 	// Kamera verschieben
 	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f/*n Einheiten entfernt*/));
@@ -203,6 +213,35 @@ int main(int argc, char** argv)
 	bool close = false;
 	while (!close) // GameLoop
 	{
+		// Events abfragen
+		SDL_Event event;
+		while (SDL_PollEvent(&event))
+		{
+			// Beenden
+			if (event.type == SDL_QUIT)
+			{
+				close = true;
+			}
+			// Perspektive wechseln
+			else if (event.type == SDL_KEYDOWN)
+			{
+				if (event.key.keysym.sym == SDLK_p/*Taste P*/ && event.key.keysym.mod & KMOD_LCTRL/*sowie gedrueckte linke Steuerungstaste*/)
+				{
+					ortho = !ortho;
+					if (ortho)
+					{
+						projection = projectionOrtho;
+						std::cout << "Kamerawechsel zu Orthogonal!" << std::endl;
+					}
+					else
+					{
+						projection = projectionPersp;
+						std::cout << "Kamerawechsel zu Perspektive!" << std::endl;
+					}
+				}
+			}
+		}
+
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// Loeschfarbe angeben
 		glClear(GL_COLOR_BUFFER_BIT);			// Loeschen mit Loeschfarbe
 		time += delta; // delta ist die Zeit, die seit dem letzten Frame vergangen ist!
@@ -211,7 +250,7 @@ int main(int argc, char** argv)
 		model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
 		modelViewProj = projection * view * model;
 
-		// Fake Rotation:
+		// Fake Rotation (mit scale):
 		//model = glm::mat4(1.0f);
 		//model = glm::scale(model, glm::vec3(sinf(time), 1, 1));
 
@@ -229,24 +268,16 @@ int main(int argc, char** argv)
 		indexBuffer.unbind();
 		vertexBuffer.Unbind();
 
-		SDL_GL_SwapWindow(window); //2 Buffer (Monitorausgabe|Bildberechnung) -> Doppelpufferung
+		SDL_GL_SwapWindow(window); // 2 Buffer (Monitorausgabe|Bildberechnung) -> Doppelpufferung
 
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
-		{
-			if (event.type == SDL_QUIT)
-			{
-				close = true;
-			}
-		}
-
-		//Zeit messen:
+		// Zeit messen:
 		uint64_t endCounter = SDL_GetPerformanceCounter();
 		uint64_t counterElapsed = endCounter - lastCounter;
 		delta = ((float)counterElapsed) / (float)perfCounterFrequency;
 		uint32_t FPS = (uint32_t)((float)perfCounterFrequency / (float)counterElapsed);
 		//std::cout << FPS << std::endl;
 		lastCounter = endCounter;
+
 	}
 	GLCALL(glDeleteTextures(1, &textureId));
 	return 0;
