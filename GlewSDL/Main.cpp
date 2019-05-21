@@ -1,10 +1,11 @@
 #include <iostream>
-#define GLEW_STATIC			//Glew DLLs statisch linken
+#define GLEW_STATIC			// Glew DLLs statisch linken
 #include <GL/glew.h>
-#define SDL_MAIN_HANDLED	//Eigene Main Funktion verwenden
+#define SDL_MAIN_HANDLED	// Eigene Main Funktion verwenden
 
 #include <glm/glm.hpp>		// Mathe... -.-
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <SDL.h>
 #include <Windows.h>
@@ -65,7 +66,7 @@ int main(int argc, char** argv)
 	SDL_Window* window;
 	SDL_Init(SDL_INIT_EVERYTHING);
 
-	//Aufbau FrameBuffer(4x8 -> 1Pixel = 32bit):
+	// Aufbau FrameBuffer(4x8 -> 1Pixel = 32bit):
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8/*bit*/);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8/*bit*/);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8/*bit*/);
@@ -84,10 +85,10 @@ int main(int argc, char** argv)
 
 	window = SDL_CreateWindow("First Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, flags);
 
-	//1 Thread, 1 Context (mehrere moeglich)
+	// 1 Thread, 1 Context (mehrere moeglich)
 	SDL_GLContext glContext = SDL_GL_CreateContext(window); // Speichert Render Status
 
-	//Laden aller OpenGL Erweitungen
+	// Laden aller OpenGL Erweitungen
 	GLenum err = glewInit(); //benoetigt SDL_GLContext (oben)
 	if (GLEW_OK != err)
 	{
@@ -103,7 +104,7 @@ int main(int argc, char** argv)
 	glDebugMessageCallback(openGLDebugCallback, 0);
 #endif
 
-	//Daten fuer Dreieck:
+	// Daten fuer Dreieck:
 	Vertex verticies[] = {
 		Vertex{-0.5f, -0.5f, 0.0f,
 				0.0f, 0.0f,
@@ -120,7 +121,7 @@ int main(int argc, char** argv)
 	};
 	uint32_t countVerticies = 4; // Anzahl Dreiecke in verticies Array
 
-	//Index fuer komplexere Formen
+	// Index fuer komplexere Formen
 	uint32_t indices[] = {
 		0, 1, 2,
 		1, 2, 3
@@ -132,11 +133,11 @@ int main(int argc, char** argv)
 	VertexBuffer vertexBuffer(verticies, countVerticies);
 	vertexBuffer.Unbind();
 
-	//Textur
+	// Textur
 	int32_t textureWidth = 0;
 	int32_t terxtureHeight = 0;
 	int32_t bitsPerPixel = 0;
-	stbi_set_flip_vertically_on_load(true); //sonst Textur auf den Kopf
+	stbi_set_flip_vertically_on_load(true); // sonst Textur auf den Kopf
 	auto texturBuffer = stbi_load("Texturen/Textur.png", &textureWidth, &terxtureHeight, &bitsPerPixel, 4/*Kanaele*/);
 
 	GLuint textureId;
@@ -159,7 +160,7 @@ int main(int argc, char** argv)
 	Shader shader("basic.vs.txt", "basic.fs.txt");
 	shader.bind();
 
-	//Zeit messen:
+	// Zeit messen:
 	uint64_t perfCounterFrequency = SDL_GetPerformanceFrequency();
 	uint64_t lastCounter = SDL_GetPerformanceCounter();
 	float delta = 0.0f;
@@ -170,7 +171,7 @@ int main(int argc, char** argv)
 		GLCALL(glUniform4f(colorUniformLocation, 0.0f, 0.0f, 1.0f, 1.0f));
 	}
 
-	//Textur:
+	// Textur:
 	int textureUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_texture"));
 	if (!textureUniformLocation != -1) {
 		GLCALL(glUniform1i(textureUniformLocation, 0));
@@ -178,11 +179,23 @@ int main(int argc, char** argv)
 
 	// Pinguin drehen:
 	glm::mat4 model = glm::mat4(1.0f); // Einheitsmatrix (nichts passiert)
-	model = glm::scale(model, glm::vec3(0.6f/*x*/, 0.8f/*y*/, 1.0f/*z*/)); // Skalieren
+	model = glm::scale(model, glm::vec3(0.8f/*x*/, 0.8f/*y*/, 1.0f/*z*/)); // Skalieren
 
-	int modelMatrixLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_model"));
+	// Orthogonale Projektion
+	glm::mat4 projection = glm::ortho(-4.0f, 4.0f,/*4zu3*/ -3.0f, 3.0f, -10.0f, 100.0f); // Auflösungsabhaengig
 
-	//Wireframe Modus
+	// Perspektivische Projektion
+	projection = glm::perspective(glm::radians(45.0f)/*Aufnahme-Winkel*/, 4.0f / 3.0f/*hier 4zu3, sonst Aufloesungsabhaengig*/, 0.1f/*Near Sichtweite*/, 100.0f/*Far Sichtweite (richtiges Spiel 1000 oder mehr)*/);
+
+	// Kamera verschieben
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f/*n Einheiten entfernt*/));
+
+	// Projektion berechnen
+	glm::mat4 modelViewProj = projection * view * model;
+
+	int modelMatrixLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_modelViewProj"));
+
+	// Wireframe Modus
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Normal
 
@@ -195,7 +208,8 @@ int main(int argc, char** argv)
 		time += delta; // delta ist die Zeit, die seit dem letzten Frame vergangen ist!
 
 		// Echte Rotation:
-		model = glm::rotate(model, 1.0f * delta, glm::vec3(1, 1/*y*/, 1)/*Achse um die rotiert werden soll*/);
+		model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
+		modelViewProj = projection * view * model;
 
 		// Fake Rotation:
 		//model = glm::mat4(1.0f);
@@ -208,7 +222,7 @@ int main(int argc, char** argv)
 
 		vertexBuffer.Bind();
 		indexBuffer.bind();
-		GLCALL(glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &model[0][0]));
+		GLCALL(glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelViewProj[0][0]));
 		GLCALL(glActiveTexture(GL_TEXTURE0));
 		GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
 		GLCALL(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
