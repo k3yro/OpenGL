@@ -25,6 +25,8 @@
 #include "defines.h"
 #include "shader.h"
 #include "Kamera.hpp"
+#include "KameraFPS.hpp"
+#include "KameraFloating.hpp"
 
 // Neue OpenGl Debug Variante:
 std::string lastErrorMessage = "";
@@ -79,6 +81,8 @@ int main(int argc, char** argv)
 	// 1 = Ein (Grafikkarte wartet bis Frame auf Monitor fertig gezeichnet ist), 
 	// -1 = AdaptivSync (Monitor(g-sync/freesync faehig) wartet auf Grafikkarte)
 	SDL_GL_SetSwapInterval(1); // Hardwarevoraussetzungen sind mit SDL-Befehlen abfragbar
+
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 #ifdef _DEBUG
 	// Spezieller Debug Mode (Verlangsamung)
@@ -187,30 +191,16 @@ int main(int argc, char** argv)
 	glm::mat4 model = glm::mat4(1.0f); // Einheitsmatrix (nichts passiert)
 	model = glm::scale(model, glm::vec3(1.0f/*x*/, 1.0f/*y*/, 1.0f/*z*/)); // Skalieren
 
-	bool ortho = false; // Ingame Perspektive wechseln
-
-	//// Orthogonale Projektion
-	//glm::mat4 projectionOrtho = glm::ortho(-2.26f, 2.26f,/*4zu3*/ -1.7f, 1.7f, -10.0f, 100.0f); // Auflösungsabhaengig
-
-	//// Perspektivische Projektion
-	//glm::mat4 projectionPersp = glm::perspective(glm::radians(45.0f)/*Aufnahme-Winkel*/, 4.0f / 3.0f/*hier 4zu3, sonst Aufloesungsabhaengig*/, 0.1f/*Near Sichtweite*/, 100.0f/*Far Sichtweite (richtiges Spiel 1000 oder mehr)*/);
-
-	//// Initial Perspektive
-	//glm::mat4 projection = projectionPersp;
 
 	//TODO: Echte Aufloesung mit SDL abfragen
-	Kamera camera(90.0f/*Grad*/, 800.0f, 600.0f);
+	//KameraFPS camera(90.0f/*Grad*/, 800.0f, 600.0f);
+	KameraFloating camera(90.0f/*Grad*/, 800.0f, 600.0f);
 
 	// Kamera bewegen:
 	camera.translate(glm::vec3(0.0f, 0.0f, 5.0f));
 
 	// ViewProjektionMatrix updaten
 	camera.update();
-
-
-
-	//// Kamera verschieben
-	//glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -4.0f/*n Einheiten entfernt*/));
 
 	// Projektion berechnen
 	glm::mat4 modelViewProj = camera.getViewProj() * model;
@@ -226,7 +216,10 @@ int main(int argc, char** argv)
 	bool buttonA = false;
 	bool buttonS = false;
 	bool buttonD = false;
+	bool buttonSpace = false;
+	bool buttonShift = false;
 
+	float cameraSpeed = 6.0f; // 5-6 m/s (ueblicher Wert zum Laufen)
 	float time = 0.0f;
 	bool close = false;
 	while (!close) // GameLoop
@@ -256,20 +249,20 @@ int main(int argc, char** argv)
 				case SDLK_d:
 					buttonD = true;
 					break;
+				case SDLK_SPACE:
+					buttonSpace = true;
+					break;
+				case SDLK_LSHIFT:
+					buttonShift = true;
+					break;
+				case SDLK_ESCAPE:
+					close = true;
+					break;
+					
 				case SDLK_p:
 					if (event.key.keysym.mod & KMOD_LCTRL)
 					{
-						ortho = !ortho;
-						if (ortho)
-						{
-							//projection = projectionOrtho;
-							std::cout << "Kamerawechsel zu Orthogonal!" << std::endl;
-						}
-						else
-						{
-							//projection = projectionPersp;
-							std::cout << "Kamerawechsel zu Perspektive!" << std::endl;
-						}
+						//Pause ?
 					}
 					break;
 				}
@@ -290,7 +283,17 @@ int main(int argc, char** argv)
 				case SDLK_d:
 					buttonD = false;
 					break;
+				case SDLK_SPACE:
+					buttonSpace = false;
+					break;
+				case SDLK_LSHIFT:
+					buttonShift = false;
+					break;
 				}
+			}
+			else if (event.type == SDL_MOUSEMOTION)
+			{
+				camera.onMouseMoved(event.motion.xrel, event.motion.yrel); 
 			}
 		}
 
@@ -301,19 +304,27 @@ int main(int argc, char** argv)
 		// Kamera bewegen:
 		if (buttonW)
 		{
-			camera.translate(glm::vec3(0.0f, 0.0f, -2.0f * delta)); // Zwei Einheiten pro Sekunde nach vorne
+			camera.moveFront(delta* cameraSpeed);
 		}
 		if (buttonA)
 		{
-			camera.translate(glm::vec3(-1.0f * delta, 0.0f, 0.0f)); // Zwei Einheiten pro Sekunde nach vorne
+			camera.moveSideway(-delta* cameraSpeed);
 		}
 		if (buttonS)
 		{
-			camera.translate(glm::vec3(0.0f, 0.0f, 2.0f * delta)); // Zwei Einheiten pro Sekunde nach vorne
+			camera.moveFront(-delta* cameraSpeed);
 		}
 		if (buttonD)
 		{
-			camera.translate(glm::vec3(1.0f * delta, 0.0f, 0.0f)); // Zwei Einheiten pro Sekunde nach vorne
+			camera.moveSideway(delta* cameraSpeed);
+		}
+		if (buttonSpace)
+		{
+			camera.moveUp(delta* cameraSpeed);
+		}
+		if (buttonShift)
+		{
+			camera.moveUp(-delta* cameraSpeed);
 		}
 
 

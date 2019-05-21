@@ -43,6 +43,12 @@
     <ClInclude Include="Kamera.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="KameraFPS.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="KameraFloating.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="basic.fs.txt">
