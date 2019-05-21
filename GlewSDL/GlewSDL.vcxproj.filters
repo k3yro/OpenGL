@@ -63,7 +63,9 @@
     <None Include="Models\hubschrauber.bmf">
       <Filter>Models</Filter>
     </None>
-    <None Include="Models\cube.bmf" />
+    <None Include="Models\cube.bmf">
+      <Filter>Models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Texturen\Textur.png">

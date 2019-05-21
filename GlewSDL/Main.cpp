@@ -118,13 +118,13 @@ int main(int argc, char** argv)
 
 	// Daten fuer Dreieck:
 	std::vector<Vertex> vertices;
-	uint64_t countVerticies = 4; // Anzahl Dreiecke in verticies Array
+	uint64_t countVerticies = 0; // Anzahl Dreiecke in verticies Array
 
 	// Index fuer komplexere Formen
 	std::vector<uint32_t> indices;
 	uint64_t numIndices = 0;
 
-	std::ifstream input = std::ifstream("Models/cube.bmf", std::ios::in | std::ios::binary);
+	std::ifstream input = std::ifstream("Models/hubschrauber.bmf", std::ios::in | std::ios::binary);
 	if (!input.is_open())
 	{
 		std::cout << "Fehler beim Einlesen des Models" << std::endl;
@@ -159,28 +159,28 @@ int main(int argc, char** argv)
 	VertexBuffer vertexBuffer(vertices.data(), countVerticies);
 	vertexBuffer.Unbind();
 
-	// Textur
-	int32_t textureWidth = 0;
-	int32_t terxtureHeight = 0;
-	int32_t bitsPerPixel = 0;
-	stbi_set_flip_vertically_on_load(true); // sonst Textur auf den Kopf
-	auto texturBuffer = stbi_load("Texturen/Textur.png", &textureWidth, &terxtureHeight, &bitsPerPixel, 4/*Kanaele*/);
+	//// Textur
+	//int32_t textureWidth = 0;
+	//int32_t terxtureHeight = 0;
+	//int32_t bitsPerPixel = 0;
+	//stbi_set_flip_vertically_on_load(true); // sonst Textur auf den Kopf
+	//auto texturBuffer = stbi_load("Texturen/Textur.png", &textureWidth, &terxtureHeight, &bitsPerPixel, 4/*Kanaele*/);
 
-	GLuint textureId;
-	GLCALL(glGenTextures(1, &textureId));
-	GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
+	//GLuint textureId;
+	//GLCALL(glGenTextures(1, &textureId));
+	//GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
 
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER/*z.b. bei Kamerabewegung*/, GL_LINEAR)); // GL_MIPMAP = nutze verschieden Aufloesungen
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER/*nah dran*/, GL_LINEAR/*verschwommen/verwaschen*/)); // GL_NEAREST = Minecraft / PS2
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE/*Am Rand der Textur abschneiden (statt z.B. kacheln)*/));
-	GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+	//GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER/*z.b. bei Kamerabewegung*/, GL_LINEAR)); // GL_MIPMAP = nutze verschieden Aufloesungen
+	//GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER/*nah dran*/, GL_LINEAR/*verschwommen/verwaschen*/)); // GL_NEAREST = Minecraft / PS2
+	//GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE/*Am Rand der Textur abschneiden (statt z.B. kacheln)*/));
+	//GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
-	GLCALL(glTexImage2D(GL_TEXTURE_2D, 0/*level(bitmaps)*/, GL_RGBA8/*Format*/, textureWidth, terxtureHeight, 0/*boarder?*/, GL_RGBA/*nochmal Format, aber ohne 8bit!?*/, GL_UNSIGNED_BYTE/*Typ Farbkanaele*/, texturBuffer));
-	GLCALL(glBindTexture(GL_TEXTURE_2D, 0));
+	//GLCALL(glTexImage2D(GL_TEXTURE_2D, 0/*level(bitmaps)*/, GL_RGBA8/*Format*/, textureWidth, terxtureHeight, 0/*boarder?*/, GL_RGBA/*nochmal Format, aber ohne 8bit!?*/, GL_UNSIGNED_BYTE/*Typ Farbkanaele*/, texturBuffer));
+	//GLCALL(glBindTexture(GL_TEXTURE_2D, 0));
 
-	if (texturBuffer) {
-		stbi_image_free(texturBuffer);
-	}
+	//if (texturBuffer) {
+	//	stbi_image_free(texturBuffer);
+	//}
 
 
 	Shader shader("basic.vs.txt", "basic.fs.txt");
@@ -192,16 +192,16 @@ int main(int argc, char** argv)
 	float delta = 0.0f;
 
 	// Uniform - Shader muss geladen sein
-	int colorUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_color"));
-	if (!colorUniformLocation != -1) {
-		GLCALL(glUniform4f(colorUniformLocation, 0.0f, 0.0f, 1.0f, 1.0f));
-	}
+	//int colorUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_color"));
+	//if (!colorUniformLocation != -1) {
+	//	GLCALL(glUniform4f(colorUniformLocation, 0.0f, 0.0f, 1.0f, 1.0f));
+	//}
 
-	// Textur:
-	int textureUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_texture"));
-	if (!textureUniformLocation != -1) {
-		GLCALL(glUniform1i(textureUniformLocation, 0));
-	}
+	//// Textur:
+	//int textureUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_texture"));
+	//if (!textureUniformLocation != -1) {
+	//	GLCALL(glUniform1i(textureUniformLocation, 0));
+	//}
 
 	// Pinguin drehen:
 	glm::mat4 model = glm::mat4(1.0f); // Einheitsmatrix (nichts passiert)
@@ -356,15 +356,15 @@ int main(int argc, char** argv)
 		//model = glm::scale(model, glm::vec3(sinf(time), 1, 1));
 
 		// Pulsierende Farbe
-		if (!colorUniformLocation != -1) {
-			GLCALL(glUniform4f(colorUniformLocation, 1.0f, 1.0f, sinf(time)* sinf(time), 1.0f));
-		}
+		//if (!colorUniformLocation != -1) {
+		//	GLCALL(glUniform4f(colorUniformLocation, 1.0f, 1.0f, sinf(time)* sinf(time), 1.0f));
+		//}
 
 		vertexBuffer.Bind();
 		indexBuffer.bind();
 		GLCALL(glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelViewProj[0][0]));
-		GLCALL(glActiveTexture(GL_TEXTURE0));
-		GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
+		//GLCALL(glActiveTexture(GL_TEXTURE0));
+		//GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
 		GLCALL(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
 		indexBuffer.unbind();
 		vertexBuffer.Unbind();
@@ -380,6 +380,6 @@ int main(int argc, char** argv)
 		lastCounter = endCounter;
 
 	}
-	GLCALL(glDeleteTextures(1, &textureId));
+	//GLCALL(glDeleteTextures(1, &textureId));
 	return 0;
 }

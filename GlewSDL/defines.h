@@ -6,8 +6,8 @@ struct Vertex
 	float y;
 	float z;
 
-	float u;
-	float v;
+	//float u;
+	//float v;
 
 	float r;
 	float g;
