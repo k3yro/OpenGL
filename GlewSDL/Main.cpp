@@ -84,7 +84,7 @@ int main(int argc, char** argv)
 	// -1 = AdaptivSync (Monitor(g-sync/freesync faehig) wartet auf Grafikkarte)
 	SDL_GL_SetSwapInterval(1); // Hardwarevoraussetzungen sind mit SDL-Befehlen abfragbar
 
-	SDL_SetRelativeMouseMode(SDL_TRUE);
+	SDL_SetRelativeMouseMode(SDL_TRUE); // Maus fangen/verbergen
 
 #ifdef _DEBUG
 	// Spezieller Debug Mode (Verlangsamung)
@@ -190,7 +190,7 @@ int main(int argc, char** argv)
 	int modelMatrixLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_modelViewProj"));
 
 	// Wireframe Modus
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Normal
 
 	// WASD
@@ -204,6 +204,16 @@ int main(int argc, char** argv)
 	float cameraSpeed = 6.0f; // 5-6 m/s (ueblicher Wert zum Laufen)
 	float time = 0.0f;
 	bool close = false;
+
+	// Nur Vorderseite der Dreiecke zeichnen (Culling)
+	GLCALL(glEnable(GL_CULL_FACE)); // glEnable - OpenGL Funktionen anschalten
+
+	// Dreiecks Vorder/Rückseite drehen
+	//GLCALL(glFrontFace(GL_CW)); // GL_CCW -> Dreiecke gege Urzeigersinn zeichnen (GL_CW -> gegen Uhrzeigersinn)
+
+	// Deep Buffer anschalten
+	GLCALL(glEnable(GL_DEPTH_TEST)); // Verdeckte Pixel nicht zeichnen (unbedingt clear Buffer in GameLoop aufrufen) 
+
 	while (!close) // GameLoop
 	{
 		// Events abfragen
@@ -238,7 +248,7 @@ int main(int argc, char** argv)
 					buttonShift = true;
 					break;
 				case SDLK_ESCAPE:
-					close = true;
+					SDL_SetRelativeMouseMode(SDL_FALSE);
 					break;
 					
 				case SDLK_p:
@@ -275,12 +285,22 @@ int main(int argc, char** argv)
 			}
 			else if (event.type == SDL_MOUSEMOTION)
 			{
-				camera.onMouseMoved(event.motion.xrel, event.motion.yrel); 
+				if (SDL_GetRelativeMouseMode())
+				{
+					camera.onMouseMoved(event.motion.xrel, event.motion.yrel);
+				}
+			}
+			else if (event.type == SDL_MOUSEBUTTONDOWN)
+			{
+				if (event.button.button == SDL_BUTTON_LEFT)
+				{
+					SDL_SetRelativeMouseMode(SDL_TRUE);
+				}
 			}
 		}
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);	// Loeschfarbe angeben
-		glClear(GL_COLOR_BUFFER_BIT);			// Loeschen mit Loeschfarbe
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);			// Loeschen mit Loeschfarbe
 		time += delta; // delta ist die Zeit, die seit dem letzten Frame vergangen ist!
 
 		// Kamera bewegen:
@@ -321,16 +341,11 @@ int main(int argc, char** argv)
 		//model = glm::mat4(1.0f);
 		//model = glm::scale(model, glm::vec3(sinf(time), 1, 1));
 
-		// Pulsierende Farbe
-		//if (!colorUniformLocation != -1) {
-		//	GLCALL(glUniform4f(colorUniformLocation, 1.0f, 1.0f, sinf(time)* sinf(time), 1.0f));
-		//}
 
 		vertexBuffer.Bind();
 		indexBuffer.bind();
 		GLCALL(glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelViewProj[0][0]));
-		//GLCALL(glActiveTexture(GL_TEXTURE0));
-		//GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
+
 		GLCALL(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
 		indexBuffer.unbind();
 		vertexBuffer.Unbind();
