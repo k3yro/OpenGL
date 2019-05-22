@@ -124,7 +124,7 @@ int main(int argc, char** argv)
 	std::vector<uint32_t> indices;
 	uint64_t numIndices = 0;
 
-	std::ifstream input = std::ifstream("Models/hubschrauber.bmf", std::ios::in | std::ios::binary);
+	std::ifstream input = std::ifstream("Models/text.bmf", std::ios::in | std::ios::binary);
 	if (!input.is_open())
 	{
 		std::cout << "Fehler beim Einlesen des Models" << std::endl;
@@ -168,11 +168,9 @@ int main(int argc, char** argv)
 	uint64_t lastCounter = SDL_GetPerformanceCounter();
 	float delta = 0.0f;
 
-
 	// Pinguin drehen:
 	glm::mat4 model = glm::mat4(1.0f); // Einheitsmatrix (nichts passiert)
 	model = glm::scale(model, glm::vec3(1.0f/*x*/, 1.0f/*y*/, 1.0f/*z*/)); // Skalieren
-
 
 	//TODO: Echte Aufloesung mit SDL abfragen
 	//KameraFPS camera(90.0f/*Grad*/, 800.0f, 600.0f);
@@ -188,6 +186,9 @@ int main(int argc, char** argv)
 	glm::mat4 modelViewProj = camera.getViewProj() * model;
 
 	int modelMatrixLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_modelViewProj"));
+	int modelViewLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_modelView"));
+	int invModelViewLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_invModelView"));
+
 
 	// Wireframe Modus
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
@@ -334,8 +335,10 @@ int main(int argc, char** argv)
 		
 
 		// Echte Rotation:
-		//model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
+		model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
 		modelViewProj = camera.getViewProj() * model;
+		glm::mat4 modelView = camera.getView() * model;
+		glm::mat4 invModelView = glm::transpose(glm::inverse(modelView));
 
 		// Fake Rotation (mit scale):
 		//model = glm::mat4(1.0f);
@@ -345,6 +348,8 @@ int main(int argc, char** argv)
 		vertexBuffer.Bind();
 		indexBuffer.bind();
 		GLCALL(glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelViewProj[0][0]));
+		GLCALL(glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelView[0][0]));
+		GLCALL(glUniformMatrix4fv(invModelViewLocation, 1, GL_FALSE, &invModelView[0][0]));
 
 		GLCALL(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
 		indexBuffer.unbind();

@@ -20,6 +20,11 @@ public:
 		return viewProj; 
 	}
 
+	glm::mat4 getView()
+	{
+		return view;
+	}
+
 	// Kameraposition neu berechnen
 	virtual void update()
 	{
