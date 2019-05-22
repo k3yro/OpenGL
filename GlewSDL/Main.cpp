@@ -128,6 +128,7 @@ int main(int argc, char** argv)
 	if (!input.is_open())
 	{
 		std::cout << "Fehler beim Einlesen des Models" << std::endl;
+		system("pause");
 		return 1;
 	}
 	input.read((char*)&countVerticies, sizeof(uint64_t));
@@ -143,7 +144,7 @@ int main(int argc, char** argv)
 		vertex.r = 1.0f;
 		vertex.g = 1.0f;
 		vertex.b = 1.0f;
-		vertex.a = 1.0f;
+		vertex.a = 0.5f;
 		vertices.push_back(vertex);
 	}
 
@@ -159,30 +160,6 @@ int main(int argc, char** argv)
 	VertexBuffer vertexBuffer(vertices.data(), countVerticies);
 	vertexBuffer.Unbind();
 
-	//// Textur
-	//int32_t textureWidth = 0;
-	//int32_t terxtureHeight = 0;
-	//int32_t bitsPerPixel = 0;
-	//stbi_set_flip_vertically_on_load(true); // sonst Textur auf den Kopf
-	//auto texturBuffer = stbi_load("Texturen/Textur.png", &textureWidth, &terxtureHeight, &bitsPerPixel, 4/*Kanaele*/);
-
-	//GLuint textureId;
-	//GLCALL(glGenTextures(1, &textureId));
-	//GLCALL(glBindTexture(GL_TEXTURE_2D, textureId));
-
-	//GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER/*z.b. bei Kamerabewegung*/, GL_LINEAR)); // GL_MIPMAP = nutze verschieden Aufloesungen
-	//GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER/*nah dran*/, GL_LINEAR/*verschwommen/verwaschen*/)); // GL_NEAREST = Minecraft / PS2
-	//GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE/*Am Rand der Textur abschneiden (statt z.B. kacheln)*/));
-	//GLCALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
-
-	//GLCALL(glTexImage2D(GL_TEXTURE_2D, 0/*level(bitmaps)*/, GL_RGBA8/*Format*/, textureWidth, terxtureHeight, 0/*boarder?*/, GL_RGBA/*nochmal Format, aber ohne 8bit!?*/, GL_UNSIGNED_BYTE/*Typ Farbkanaele*/, texturBuffer));
-	//GLCALL(glBindTexture(GL_TEXTURE_2D, 0));
-
-	//if (texturBuffer) {
-	//	stbi_image_free(texturBuffer);
-	//}
-
-
 	Shader shader("basic.vs.txt", "basic.fs.txt");
 	shader.bind();
 
@@ -191,17 +168,6 @@ int main(int argc, char** argv)
 	uint64_t lastCounter = SDL_GetPerformanceCounter();
 	float delta = 0.0f;
 
-	// Uniform - Shader muss geladen sein
-	//int colorUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_color"));
-	//if (!colorUniformLocation != -1) {
-	//	GLCALL(glUniform4f(colorUniformLocation, 0.0f, 0.0f, 1.0f, 1.0f));
-	//}
-
-	//// Textur:
-	//int textureUniformLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_texture"));
-	//if (!textureUniformLocation != -1) {
-	//	GLCALL(glUniform1i(textureUniformLocation, 0));
-	//}
 
 	// Pinguin drehen:
 	glm::mat4 model = glm::mat4(1.0f); // Einheitsmatrix (nichts passiert)
@@ -224,7 +190,7 @@ int main(int argc, char** argv)
 	int modelMatrixLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_modelViewProj"));
 
 	// Wireframe Modus
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Normal
 
 	// WASD
@@ -348,7 +314,7 @@ int main(int argc, char** argv)
 		
 
 		// Echte Rotation:
-		model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
+		//model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
 		modelViewProj = camera.getViewProj() * model;
 
 		// Fake Rotation (mit scale):
@@ -380,6 +346,5 @@ int main(int argc, char** argv)
 		lastCounter = endCounter;
 
 	}
-	//GLCALL(glDeleteTextures(1, &textureId));
 	return 0;
 }
