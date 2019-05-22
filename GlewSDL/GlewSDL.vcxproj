@@ -160,6 +160,8 @@
     <None Include="basic.vs.txt" />
     <None Include="Models\cube.bmf" />
     <None Include="Models\hubschrauber.bmf" />
+    <None Include="Models\monkey.bmf" />
+    <None Include="Models\text.bmf" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Texturen\Textur.png" />

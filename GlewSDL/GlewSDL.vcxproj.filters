@@ -66,6 +66,12 @@
     <None Include="Models\cube.bmf">
       <Filter>Models</Filter>
     </None>
+    <None Include="Models\monkey.bmf">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Models\text.bmf">
+      <Filter>Models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Texturen\Textur.png">
