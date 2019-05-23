@@ -164,6 +164,8 @@
     <None Include="Models\monkey.bmf" />
     <None Include="Models\text.bmf" />
     <None Include="Models\tree.bmf" />
+    <None Include="Models\tree01.bmf" />
+    <None Include="Models\tree02.bmf" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Texturen\Textur.png" />

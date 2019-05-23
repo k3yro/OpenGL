@@ -78,6 +78,12 @@
     <None Include="Models\tree.bmf">
       <Filter>Models</Filter>
     </None>
+    <None Include="Models\tree01.bmf">
+      <Filter>Models</Filter>
+    </None>
+    <None Include="Models\tree02.bmf">
+      <Filter>Models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Texturen\Textur.png">

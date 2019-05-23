@@ -120,10 +120,22 @@ int main(int argc, char** argv)
 	Shader shader("basic.vs.txt", "basic.fs.txt");
 	shader.bind();
 
-	Model monkey;
-	monkey.init("Models/tree.bmf", &shader);
+	int directionLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_directional_light.direction"));
+	glm::vec3 sunColor = glm::vec3(0.8f);
+	glm::vec3 sunDirection = glm::vec3(-1.0f);
+	GLCALL(glUniform3fv(glGetUniformLocation(shader.getShaderId(), "u_directional_light.diffuse"), 1, (float*)& sunColor.x));
+	GLCALL(glUniform3fv(glGetUniformLocation(shader.getShaderId(), "u_directional_light.specular"), 1, (float*)& sunColor.x));
+	sunColor *= 0.4f;
+	GLCALL(glUniform3fv(glGetUniformLocation(shader.getShaderId(), "u_directional_light.ambient"), 1, (float*)& sunColor.x));
 
+	//Model monkey;
+	//monkey.init("Models/tree.bmf", &shader);
+	Model tree01;
+	tree01.init("Models/hubschrauber.bmf", &shader);
 
+	Model tree02;
+	tree02.init("Models/tree02.bmf", &shader);
+	
 
 	// Zeit messen:
 	uint64_t perfCounterFrequency = SDL_GetPerformanceFrequency();
@@ -132,7 +144,7 @@ int main(int argc, char** argv)
 
 	// Pinguin drehen:
 	glm::mat4 model = glm::mat4(1.0f); // Einheitsmatrix (nichts passiert)
-	model = glm::scale(model, glm::vec3(0.05f)); // Skalieren
+	model = glm::scale(model, glm::vec3(1.0f)); // Skalieren
 
 	//TODO: Echte Aufloesung mit SDL abfragen
 	//KameraFPS camera(90.0f/*Grad*/, 800.0f, 600.0f);
@@ -169,7 +181,7 @@ int main(int argc, char** argv)
 	bool close = false;
 
 	// Nur Vorderseite der Dreiecke zeichnen (Culling)
-	GLCALL(glEnable(GL_CULL_FACE)); // glEnable - OpenGL Funktionen anschalten
+	//GLCALL(glEnable(GL_CULL_FACE)); // glEnable - OpenGL Funktionen anschalten
 
 	// Dreiecks Vorder/Rückseite drehen
 	//GLCALL(glFrontFace(GL_CW)); // GL_CCW -> Dreiecke gege Urzeigersinn zeichnen (GL_CW -> gegen Uhrzeigersinn)
@@ -297,11 +309,15 @@ int main(int argc, char** argv)
 		
 
 		// Echte Rotation:
-		model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
+		//model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
 
 		modelViewProj = camera.getViewProj() * model;
 		glm::mat4 modelView = camera.getView() * model;
 		glm::mat4 invModelView = glm::transpose(glm::inverse(modelView));
+
+		// Sonne
+		glm::vec4 transformedSunDirection = glm::transpose(glm::inverse(camera.getView())) * glm::vec4(sunDirection, 1.0f);
+		glUniform3fv(directionLocation, 1, (float*)& transformedSunDirection.data);
 
 		// Fake Rotation (mit scale):
 		//model = glm::mat4(1.0f);
@@ -314,7 +330,8 @@ int main(int argc, char** argv)
 		GLCALL(glUniformMatrix4fv(invModelViewLocation, 1, GL_FALSE, &invModelView[0][0]));
 
 
-		monkey.render();
+		tree01.render();
+		tree02.render();
 		
 
 

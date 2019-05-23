@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
 	ideMode = true;
 	if (ideMode)
 	{
-		inputFilename = "tree.fbx";
+		inputFilename = "hubschrauber.obj";
 		pathToModelFolder = "..//GlewSDL//Models//"; // End with "//"
 	}
 	//#########################################
