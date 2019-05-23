@@ -163,9 +163,13 @@
     <None Include="Models\hubschrauber.bmf" />
     <None Include="Models\monkey.bmf" />
     <None Include="Models\text.bmf" />
+    <None Include="Models\tree.bmf" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Texturen\Textur.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CREDITS.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -117,56 +117,13 @@ int main(int argc, char** argv)
 	glDebugMessageCallback(openGLDebugCallback, 0);
 #endif
 
-	// Daten fuer Dreieck:
-	//std::vector<Vertex> vertices;
-	//uint64_t countVerticies = 0; // Anzahl Dreiecke in verticies Array
-
-	//// Index fuer komplexere Formen
-	//std::vector<uint32_t> indices;
-	//uint64_t numIndices = 0;
-
-	//std::ifstream input = std::ifstream("Models/text.bmf", std::ios::in | std::ios::binary);
-	//if (!input.is_open())
-	//{
-	//	std::cout << "Fehler beim Einlesen des Models" << std::endl;
-	//	system("pause");
-	//	return 1;
-	//}
-	//input.read((char*)&countVerticies, sizeof(uint64_t));
-	//input.read((char*)&numIndices, sizeof(uint64_t));
-	////Todo: Optimierung
-
-	//for (uint64_t i = 0; i < countVerticies; i++)
-	//{
-	//	Vertex vertex;
-	//	input.read((char*)&vertex.position.x, sizeof(float));
-	//	input.read((char*)&vertex.position.y, sizeof(float));
-	//	input.read((char*)&vertex.position.z, sizeof(float));
-
-	//	input.read((char*)& vertex.normal.x, sizeof(float));
-	//	input.read((char*)& vertex.normal.y, sizeof(float));
-	//	input.read((char*)& vertex.normal.z, sizeof(float));
-	//	vertices.push_back(vertex);
-	//}
-
-	//for (uint64_t i = 0; i < numIndices; i++)
-	//{
-	//	uint32_t index;
-	//	input.read((char*)&index, sizeof(uint32_t));
-	//	indices.push_back(index);
-	//}
-
-	//IndexBuffer indexBuffer(indices.data(), numIndices, sizeof(indices[0]));
-
-	//VertexBuffer vertexBuffer(vertices.data(), countVerticies);
-	//vertexBuffer.Unbind();
-
 	Shader shader("basic.vs.txt", "basic.fs.txt");
 	shader.bind();
 
-	Material material = {};
-	material.diffuse = { 0.4f, 0.2f, 0.1f };
-	Mesh mesh("Models/text.bmf", material, &shader);
+	Model monkey;
+	monkey.init("Models/tree.bmf", &shader);
+
+
 
 	// Zeit messen:
 	uint64_t perfCounterFrequency = SDL_GetPerformanceFrequency();
@@ -175,7 +132,7 @@ int main(int argc, char** argv)
 
 	// Pinguin drehen:
 	glm::mat4 model = glm::mat4(1.0f); // Einheitsmatrix (nichts passiert)
-	model = glm::scale(model, glm::vec3(1.0f/*x*/, 1.0f/*y*/, 1.0f/*z*/)); // Skalieren
+	model = glm::scale(model, glm::vec3(0.05f)); // Skalieren
 
 	//TODO: Echte Aufloesung mit SDL abfragen
 	//KameraFPS camera(90.0f/*Grad*/, 800.0f, 600.0f);
@@ -357,7 +314,7 @@ int main(int argc, char** argv)
 		GLCALL(glUniformMatrix4fv(invModelViewLocation, 1, GL_FALSE, &invModelView[0][0]));
 
 
-		mesh.render();
+		monkey.render();
 		
 
 

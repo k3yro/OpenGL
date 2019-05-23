@@ -75,10 +75,18 @@
     <None Include="basic.fs.txt">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Models\tree.bmf">
+      <Filter>Models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Texturen\Textur.png">
       <Filter>Texturen</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CREDITS.txt">
+      <Filter>Models</Filter>
+    </Text>
   </ItemGroup>
 </Project>
