@@ -151,6 +151,7 @@
     <ClInclude Include="Kamera.hpp" />
     <ClInclude Include="KameraFloating.hpp" />
     <ClInclude Include="KameraFPS.hpp" />
+    <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="vertex_buffer.h" />

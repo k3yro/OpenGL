@@ -52,11 +52,11 @@
     <ClInclude Include="KameraFloating.hpp">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.hpp">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="basic.fs.txt">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="basic.vs.txt">
       <Filter>Shaders</Filter>
     </None>
@@ -71,6 +71,9 @@
     </None>
     <None Include="Models\text.bmf">
       <Filter>Models</Filter>
+    </None>
+    <None Include="basic.fs.txt">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

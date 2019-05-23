@@ -22,27 +22,6 @@
 #pragma comment(lib, "glew32s.lib")
 #pragma comment(lib, "opengl32.lib")
 
-#include "vertex_buffer.h"
-#include "index_buffer.h"
-#include "defines.h"
-#include "shader.h"
-#include "Kamera.hpp"
-#include "KameraFPS.hpp"
-#include "KameraFloating.hpp"
-
-// Neue OpenGl Debug Variante:
-std::string lastErrorMessage = "";
-void APIENTRY openGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
-	//if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
-	//{
-	if (lastErrorMessage != (std::string)message)
-	{
-		lastErrorMessage = (std::string)message;
-		std::cout << "[OpenGL_New Error] " << message << std::endl;
-	}
-	//}	
-}
-
 // Alte OpenGl Debug Variante (GLCALL):
 #ifdef _DEBUG
 std::string lastErrorFile = "";
@@ -63,6 +42,28 @@ void _GLGetError(const char* file, int line, const char* call) {
 #else
 #define GLCALL(call) call
 #endif
+
+#include "vertex_buffer.h"
+#include "index_buffer.h"
+#include "defines.h"
+#include "shader.h"
+#include "Kamera.hpp"
+#include "KameraFPS.hpp"
+#include "KameraFloating.hpp"
+#include "Mesh.hpp"
+
+// Neue OpenGl Debug Variante:
+std::string lastErrorMessage = "";
+void APIENTRY openGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam) {
+	//if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
+	//{
+	if (lastErrorMessage != (std::string)message)
+	{
+		lastErrorMessage = (std::string)message;
+		std::cout << "[OpenGL_New Error] " << message << std::endl;
+	}
+	//}	
+}
 
 // OpenGL Befehle nachschlagen: http://docs.gl
 //TODO: Debug -> mit Konsole | Release -> nur Fenster
@@ -117,51 +118,55 @@ int main(int argc, char** argv)
 #endif
 
 	// Daten fuer Dreieck:
-	std::vector<Vertex> vertices;
-	uint64_t countVerticies = 0; // Anzahl Dreiecke in verticies Array
+	//std::vector<Vertex> vertices;
+	//uint64_t countVerticies = 0; // Anzahl Dreiecke in verticies Array
 
-	// Index fuer komplexere Formen
-	std::vector<uint32_t> indices;
-	uint64_t numIndices = 0;
+	//// Index fuer komplexere Formen
+	//std::vector<uint32_t> indices;
+	//uint64_t numIndices = 0;
 
-	std::ifstream input = std::ifstream("Models/text.bmf", std::ios::in | std::ios::binary);
-	if (!input.is_open())
-	{
-		std::cout << "Fehler beim Einlesen des Models" << std::endl;
-		system("pause");
-		return 1;
-	}
-	input.read((char*)&countVerticies, sizeof(uint64_t));
-	input.read((char*)&numIndices, sizeof(uint64_t));
-	//Todo: Optimierung
+	//std::ifstream input = std::ifstream("Models/text.bmf", std::ios::in | std::ios::binary);
+	//if (!input.is_open())
+	//{
+	//	std::cout << "Fehler beim Einlesen des Models" << std::endl;
+	//	system("pause");
+	//	return 1;
+	//}
+	//input.read((char*)&countVerticies, sizeof(uint64_t));
+	//input.read((char*)&numIndices, sizeof(uint64_t));
+	////Todo: Optimierung
 
-	for (uint64_t i = 0; i < countVerticies; i++)
-	{
-		Vertex vertex;
-		input.read((char*)&vertex.position.x, sizeof(float));
-		input.read((char*)&vertex.position.y, sizeof(float));
-		input.read((char*)&vertex.position.z, sizeof(float));
+	//for (uint64_t i = 0; i < countVerticies; i++)
+	//{
+	//	Vertex vertex;
+	//	input.read((char*)&vertex.position.x, sizeof(float));
+	//	input.read((char*)&vertex.position.y, sizeof(float));
+	//	input.read((char*)&vertex.position.z, sizeof(float));
 
-		input.read((char*)& vertex.normal.x, sizeof(float));
-		input.read((char*)& vertex.normal.y, sizeof(float));
-		input.read((char*)& vertex.normal.z, sizeof(float));
-		vertices.push_back(vertex);
-	}
+	//	input.read((char*)& vertex.normal.x, sizeof(float));
+	//	input.read((char*)& vertex.normal.y, sizeof(float));
+	//	input.read((char*)& vertex.normal.z, sizeof(float));
+	//	vertices.push_back(vertex);
+	//}
 
-	for (uint64_t i = 0; i < numIndices; i++)
-	{
-		uint32_t index;
-		input.read((char*)&index, sizeof(uint32_t));
-		indices.push_back(index);
-	}
+	//for (uint64_t i = 0; i < numIndices; i++)
+	//{
+	//	uint32_t index;
+	//	input.read((char*)&index, sizeof(uint32_t));
+	//	indices.push_back(index);
+	//}
 
-	IndexBuffer indexBuffer(indices.data(), numIndices, sizeof(indices[0]));
+	//IndexBuffer indexBuffer(indices.data(), numIndices, sizeof(indices[0]));
 
-	VertexBuffer vertexBuffer(vertices.data(), countVerticies);
-	vertexBuffer.Unbind();
+	//VertexBuffer vertexBuffer(vertices.data(), countVerticies);
+	//vertexBuffer.Unbind();
 
 	Shader shader("basic.vs.txt", "basic.fs.txt");
 	shader.bind();
+
+	Material material = {};
+	material.diffuse = { 0.4f, 0.2f, 0.1f };
+	Mesh mesh("Models/text.bmf", material, &shader);
 
 	// Zeit messen:
 	uint64_t perfCounterFrequency = SDL_GetPerformanceFrequency();
@@ -336,6 +341,7 @@ int main(int argc, char** argv)
 
 		// Echte Rotation:
 		model = glm::rotate(model, 1.0f * delta, glm::vec3(0, 1/*y*/, 0)/*Achse um die rotiert werden soll*/);
+
 		modelViewProj = camera.getViewProj() * model;
 		glm::mat4 modelView = camera.getView() * model;
 		glm::mat4 invModelView = glm::transpose(glm::inverse(modelView));
@@ -345,15 +351,15 @@ int main(int argc, char** argv)
 		//model = glm::scale(model, glm::vec3(sinf(time), 1, 1));
 
 
-		vertexBuffer.Bind();
-		indexBuffer.bind();
+		// ModelView Matrizen
 		GLCALL(glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelViewProj[0][0]));
 		GLCALL(glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelView[0][0]));
 		GLCALL(glUniformMatrix4fv(invModelViewLocation, 1, GL_FALSE, &invModelView[0][0]));
 
-		GLCALL(glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0));
-		indexBuffer.unbind();
-		vertexBuffer.Unbind();
+
+		mesh.render();
+		
+
 
 		SDL_GL_SwapWindow(window); // 2 Buffer (Monitorausgabe|Bildberechnung) -> Doppelpufferung
 
