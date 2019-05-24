@@ -57,9 +57,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="basic.vs.txt">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="Models\hubschrauber.bmf">
       <Filter>Models</Filter>
     </None>
@@ -71,9 +68,6 @@
     </None>
     <None Include="Models\text.bmf">
       <Filter>Models</Filter>
-    </None>
-    <None Include="basic.fs.txt">
-      <Filter>Shaders</Filter>
     </None>
     <None Include="Models\tree.bmf">
       <Filter>Models</Filter>
@@ -89,6 +83,12 @@
     </None>
     <None Include="Models\world.bmf">
       <Filter>Models</Filter>
+    </None>
+    <None Include="basic.fragment.shader">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="basic.vertex.shader">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

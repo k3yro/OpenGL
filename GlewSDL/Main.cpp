@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 	glDebugMessageCallback(openGLDebugCallback, 0);
 #endif
 
-	Shader shader("basic.vs.txt", "basic.fs.txt");
+	Shader shader("basic.vertex.shader", "basic.fragment.shader");
 	shader.bind();
 
 	int directionLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_directional_light.direction"));
