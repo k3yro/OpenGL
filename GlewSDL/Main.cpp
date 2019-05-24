@@ -128,10 +128,11 @@ int main(int argc, char** argv)
 	sunColor *= 0.4f;
 	GLCALL(glUniform3fv(glGetUniformLocation(shader.getShaderId(), "u_directional_light.ambient"), 1, (float*)& sunColor.x));
 
-	//Model monkey;
-	//monkey.init("Models/tree.bmf", &shader);
+	Model world;
+	world.init("Models/world.bmf", &shader);
+
 	Model model01;
-	model01.init("Models/monkey.bmf", &shader);
+	model01.init("Models/hubschrauber.bmf", &shader);
 
 	Model model02;
 	model02.init("Models/tree01.bmf", &shader);
@@ -181,7 +182,7 @@ int main(int argc, char** argv)
 	bool close = false;
 
 	// Nur Vorderseite der Dreiecke zeichnen (Culling)
-	GLCALL(glEnable(GL_CULL_FACE)); // glEnable - OpenGL Funktionen anschalten
+	//GLCALL(glEnable(GL_CULL_FACE)); // glEnable - OpenGL Funktionen anschalten
 
 	// Dreiecks Vorder/Rückseite drehen
 	//GLCALL(glFrontFace(GL_CW)); // GL_CCW -> Dreiecke gege Urzeigersinn zeichnen (GL_CW -> gegen Uhrzeigersinn)
@@ -329,7 +330,7 @@ int main(int argc, char** argv)
 		GLCALL(glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, &modelView[0][0]));
 		GLCALL(glUniformMatrix4fv(invModelViewLocation, 1, GL_FALSE, &invModelView[0][0]));
 
-
+		world.render();
 		model01.render();
 		//model02.render();
 		

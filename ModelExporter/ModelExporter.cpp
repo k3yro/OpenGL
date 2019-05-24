@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
 	ideMode = true;
 	if (ideMode)
 	{
-		inputFilename = "monkey.obj";
+		inputFilename = "world.obj";
 		pathToModelFolder = "..//GlewSDL//Models//"; // End with "//"
 	}
 	//#########################################
@@ -212,6 +212,6 @@ int main(int argc, char** argv) {
 	output.close();
 	if (ideMode)
 	{
-		//system("pause");
+		system("pause");
 	}
 }

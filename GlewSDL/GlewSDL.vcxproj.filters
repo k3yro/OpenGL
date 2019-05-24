@@ -87,6 +87,9 @@
     <None Include="Models\kugel.bmf">
       <Filter>Models</Filter>
     </None>
+    <None Include="Models\world.bmf">
+      <Filter>Models</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Texturen\Textur.png">
