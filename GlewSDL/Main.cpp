@@ -130,11 +130,11 @@ int main(int argc, char** argv)
 
 	//Model monkey;
 	//monkey.init("Models/tree.bmf", &shader);
-	Model tree01;
-	tree01.init("Models/hubschrauber.bmf", &shader);
+	Model model01;
+	model01.init("Models/monkey.bmf", &shader);
 
-	Model tree02;
-	tree02.init("Models/tree02.bmf", &shader);
+	Model model02;
+	model02.init("Models/tree01.bmf", &shader);
 	
 
 	// Zeit messen:
@@ -181,7 +181,7 @@ int main(int argc, char** argv)
 	bool close = false;
 
 	// Nur Vorderseite der Dreiecke zeichnen (Culling)
-	//GLCALL(glEnable(GL_CULL_FACE)); // glEnable - OpenGL Funktionen anschalten
+	GLCALL(glEnable(GL_CULL_FACE)); // glEnable - OpenGL Funktionen anschalten
 
 	// Dreiecks Vorder/Rückseite drehen
 	//GLCALL(glFrontFace(GL_CW)); // GL_CCW -> Dreiecke gege Urzeigersinn zeichnen (GL_CW -> gegen Uhrzeigersinn)
@@ -330,8 +330,8 @@ int main(int argc, char** argv)
 		GLCALL(glUniformMatrix4fv(invModelViewLocation, 1, GL_FALSE, &invModelView[0][0]));
 
 
-		tree01.render();
-		tree02.render();
+		model01.render();
+		//model02.render();
 		
 
 

@@ -161,6 +161,7 @@
     <None Include="basic.vs.txt" />
     <None Include="Models\cube.bmf" />
     <None Include="Models\hubschrauber.bmf" />
+    <None Include="Models\kugel.bmf" />
     <None Include="Models\monkey.bmf" />
     <None Include="Models\text.bmf" />
     <None Include="Models\tree.bmf" />
