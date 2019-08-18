@@ -120,6 +120,7 @@ int main(int argc, char** argv)
 	Shader shader("basic.vertex.shader", "basic.fragment.shader");
 	shader.bind();
 
+	// Richtungslicht
 	int directionLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_directional_light.direction"));
 	glm::vec3 sunColor = glm::vec3(0.8f);
 	glm::vec3 sunDirection = glm::vec3(-1.0f);
@@ -127,6 +128,21 @@ int main(int argc, char** argv)
 	GLCALL(glUniform3fv(glGetUniformLocation(shader.getShaderId(), "u_directional_light.specular"), 1, (float*)& sunColor.x));
 	sunColor *= 0.4f;
 	GLCALL(glUniform3fv(glGetUniformLocation(shader.getShaderId(), "u_directional_light.ambient"), 1, (float*)& sunColor.x));
+
+	// Punktlicht
+	glm::vec3 pointLightColor = glm::vec3(0.0f, 1.0f, 1.0f);
+	GLCALL(glUniform3fv(glGetUniformLocation(shader.getShaderId(), "u_point_light.diffuse"), 1, (float*)& pointLightColor.x));
+	GLCALL(glUniform3fv(glGetUniformLocation(shader.getShaderId(), "u_point_light.specular"), 1, (float*)& pointLightColor.x));
+	pointLightColor *= 0.2f;
+	GLCALL(glUniform3fv(glGetUniformLocation(shader.getShaderId(), "u_point_light.ambient"), 1, (float*)& pointLightColor.x));
+
+	GLCALL(glUniform1f(glGetUniformLocation(shader.getShaderId(), "u_point_light.linear"), 0.027f));
+	GLCALL(glUniform1f(glGetUniformLocation(shader.getShaderId(), "u_point_light.quadratic"), 0.0028f));
+
+
+	glm::vec4 pointLightPosition = glm::vec4(0.0f, 0.0f, 3.0f, 1.0f);
+	int positionLocation = GLCALL(glGetUniformLocation(shader.getShaderId(), "u_point_light.position"));
+
 
 	Model world;
 	world.init("Models/world.bmf", &shader);
@@ -324,6 +340,10 @@ int main(int argc, char** argv)
 		//model = glm::mat4(1.0f);
 		//model = glm::scale(model, glm::vec3(sinf(time), 1, 1));
 
+		glm::mat4 pointLightMatrix = glm::rotate(glm::mat4(1.0f), -delta, { 0.0f, 1.0f, 0.0f });
+		pointLightPosition = pointLightMatrix * pointLightPosition;
+		glm::vec3 transformedPointLightPosition = (glm::vec3) (camera.getView() * pointLightPosition);
+		glUniform3fv(positionLocation, 1, (float*)&transformedPointLightPosition.x);
 
 		// ModelView Matrizen
 		GLCALL(glUniformMatrix4fv(modelMatrixLocation, 1, GL_FALSE, &modelViewProj[0][0]));
